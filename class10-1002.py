@@ -37,7 +37,18 @@ for i in range(numshapes):
 t.done()
 '''
 
-for i in range(3):
-    print(i, 1)
-    for j in range(3):
-        print(i, 2)
+# for i in range(3):
+#     print(i, 1)
+#     for j in range(3):
+#         print(i, 2)
+
+# will be on midterm, not an error
+for j in range(1, 5):
+    if j==2:
+        break
+    if j==4:
+        print(4)
+    else:
+        print("oi")
+else:
+    print("ok",end='')
