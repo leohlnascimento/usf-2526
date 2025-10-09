@@ -3,6 +3,8 @@
 
 from collections import namedtuple
 MenuIte = namedtuple("MenuItem", ["id", "name", "price"])
+
+TAX = 0.07
 Menu = [MenuIte(1, 'strawberry', 1.25),
         MenuIte(2, 'mango', 1.50),
         MenuIte(3, 'banana', 0.95)]
@@ -12,6 +14,18 @@ Menu = [MenuIte(1, 'strawberry', 1.25),
 # print(menu[1].name)
 
 # ---- begin function definitions ----
+def getinput(prompt:str, lo:int, hi:int):
+    while True:
+        try:
+            n = int(input(prompt))
+            if lo <= n <= hi:
+                break
+            else:
+                print("choose valid option")
+        except ValueError:
+            print("invalid value")
+    return n
+
 def show_menu(menu):
     print('menu (press 0 if done:)')
     for item in menu:
@@ -21,16 +35,7 @@ def pick_ing(m):
     chosen = []
     choice = -1 # sentinel (stop loop)
     while choice != 0:
-        # get user input
-        while True:
-            try:
-                choice = int(input())
-                if 1 <= choice <= 3:
-                    break
-                else:
-                    print("choose valid option")
-            except ValueError:
-                print("invalid value")
+        choice = getinput("Choose id (0 if done): ", 0, 3)
 
         if choice == 0:
             if not chosen: # my list is empty
@@ -43,16 +48,30 @@ def pick_ing(m):
                 if i.id == choice:
                     item = i
                     break
-            # qty = get more input
-            # for loop to build the list
-
+            qty = getinput("how many: ", 0, 3)
+            for j in range(qty):
+                chosen.append(item)
+            print(f"added {qty} {item.name}(s)")
     return chosen # return a list
+
+def totals(items):
+    subtotal = 0
+    for i in items:
+        subtotal += i.price
+    subtotal = round(subtotal, 2)
+    tax = round(subtotal * TAX, 2)
+    total = round(subtotal + tax, 2)
+    return subtotal, tax, total # python does packing -> packs it in a tuple
 
 def main():
     # in python, all function return values
     print('Welcome to the Smoothie Bar!')
     show_menu(Menu)
-    # ingredients = pick_ing(Menu)
+    ingredients = pick_ing(Menu)
+    sub, tax, tot = totals(ingredients)
+    print('-' * 25)
+    print(f"your smoothie is going to cost ${sub}, before taxes. "
+          f"after the 7% taxes of {tax} added, the total is {tot}")
     return 0
 
 # ---- end of function definitions ----
