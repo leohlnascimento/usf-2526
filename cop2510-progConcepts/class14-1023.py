@@ -28,4 +28,11 @@ print(name[::-1])
 # write to a file
 with open('reminder.txt', mode='w') as outfile:
      outfile.write('Update recitation session attendance.')
-     
+    
+with open('reminder.txt', mode='a') as outfile:
+     outfile.write('backslashnCheck grades on Canvas.')
+# in a windows machine - change the backward slashes to forward slashes
+# "/Users/sksmall/Desktop/Fall2025/COP2510/reminder.txt"
+# write method overwrites your data
+
+print("Writing to file complete.")
