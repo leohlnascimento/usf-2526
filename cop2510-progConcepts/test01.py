@@ -1,11 +1,12 @@
-# use of matplotlib
-import matplotlib.pyplot as plt
+class Student:
+    def __init__(self, name):
+        self._name = name
 
-# sample data
-exams = [1, 2, 3, 4, 5]
-scores = [78, 85, 88, 92, 94]
+    def displayName(self):
+        print(self._name)
 
-# create line graph
-plt.plot(exams, scores)
+s1 = Student("Santhosh")
+s1.displayName()
 
-plt.show()
+# Raises an error
+print(s1._name)
