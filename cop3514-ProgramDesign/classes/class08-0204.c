@@ -1,5 +1,5 @@
 /*
-    Notes - Class 07 - Feb 02, 2026
+    Notes - Class 08 - Feb 04, 2026
 
     - Arrays
         int a[10];
