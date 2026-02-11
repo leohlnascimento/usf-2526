@@ -1,5 +1,5 @@
 /*
-    Notes - Class 03 - Jan 21, 2026
+    Notes - Class 04 - Jan 21, 2026
 
     - If statement
         if (expression) statement else statement
