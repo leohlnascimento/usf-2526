@@ -3,7 +3,14 @@
     Week 6_ch11.pptx
 
     - Pointers as Arguments
-        
+        in C, arguments are passed by value
+        parameter contains a copy
+        changes made to the parameter don't affect the argument
+    - Pointers as Return Values
+        never return pointer to local variable
+        (automatic storage duration)
+        pointers can point to array elements
+        &a[i] is a pointer to element i of a
 */
 
 #include <stdio.h>
