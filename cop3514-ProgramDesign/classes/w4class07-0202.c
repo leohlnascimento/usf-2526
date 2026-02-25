@@ -37,6 +37,7 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 int main(void) {
     /* char ch;
@@ -79,6 +80,8 @@ int main(void) {
         printf("%c", ch);
     }
     printf("\n");
+
+    printf("%d", strlen((char)ch));
     
     return 0;
 }
