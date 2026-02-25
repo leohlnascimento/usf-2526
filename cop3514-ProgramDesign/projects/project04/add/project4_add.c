@@ -7,7 +7,7 @@
     and store it as the first element of the output array.
     Then, adds the second and second-to-last elements and stores as
     the second number, and so on.
-    If n1 is odd, the central integer will become a2[n2]
+    If n1 is odd, the central integer will become a2[n2 - 1]
 */
 
 #include <stdio.h>
@@ -59,6 +59,7 @@ void compute(int *a1, int n1, int *a2, int n2){
         *q = *p + *(a1 + (n1 - 1 - (p - a1)));
     }
 
+    // if n1 is odd, a2[n2 - 1] = a1[n1 / 2]
     if (n1 % 2 == 1) *(a2 + (n2 - 1)) = *(a1 + (n1 / 2));
 
     return;
