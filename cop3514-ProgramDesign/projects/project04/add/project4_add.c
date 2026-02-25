@@ -7,7 +7,8 @@
     and store it as the first element of the output array.
     Then, adds the second and second-to-last elements and stores as
     the second number, and so on.
-    If n1 is odd, the central integer will become a2[n2 - 1]
+    If n1 is odd, the central integer becomes the last element for a2,
+    a2[n2 - 1].
 */
 
 #include <stdio.h>
