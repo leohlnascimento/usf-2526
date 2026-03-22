@@ -1,6 +1,6 @@
 /*
     Notes - Class 11 - Feb 16, 2026
-    Week 6_ch11.pptx
+    Week 6_ch11.pptx - OK
 
     - Pointers as Arguments
         in C, arguments are passed by value
