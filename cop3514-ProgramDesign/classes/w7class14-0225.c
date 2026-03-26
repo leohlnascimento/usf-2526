@@ -1,6 +1,6 @@
 /*
     Notes - Class 14 - Feb 25, 2026
-    Week 7_ch13_1.pptx - 
+    Week 7_ch13_1.pptx - OK
 
     - Introduction to Strings
         two types: String constants (or literals) and String variables
@@ -44,14 +44,73 @@
         in the array version, the characters in date can be modified
         in the pointer version, date points to a string literal,
         that should not be modified
+
+    - Scanf
+        skips initial white space, then reads until encounters
+        a white-space character
+        no way to detect when array is full
+        may store characters past the end → undefined behavior
+        can be made safer by using %ns
+        scanf("%20s", str);
+
+    - Gets
+        unsafe, no way to detect when the array is full
+    
+    - Usually, we write our own input functions
+        int read_line(char str[], int n);
+        getchar() returns an int value
 */
 
 #include <stdio.h>
+
+void concatenate(char string1[], char string2[], char string3[]);
+int read_line(char *str1, int n);
 
 int main(void) {
     printf("When you come to a fork in the road, take it. "
     "--Yogi Berra\n");
     char *ch = "x";
-    printf("%s", ch);
+    printf("%s\n", ch);
+    char string1[50];
+    char string2[50];
+    char string3[100];
+    printf("Digite a primeira string: ");
+    read_line(string1, 50);
+    printf("Digite a segunda string: ");
+    read_line(string2, 50);
+
+    concatenate(string1, string2, string3);
+
+    printf("%s\n", string3);
+
     return 0;
+}
+
+void concatenate(char *s1, char *s2, char *s3){
+    while(*s1) *s3++ = *s1++;
+    while(*s2) *s3++ = *s2++;
+    *s3 = '\0';
+} 
+
+int read_line(char *str, int n){
+    int ch, i = 0;
+    while((ch = getchar()) == ' ');
+
+    if (ch == EOF || ch == '\n'){
+        *str = '\0';
+        return 0;
+    }
+
+    *str++ = ch;
+    i++;
+
+    while((ch = getchar()) != '\n' && ch != EOF){
+        if (i < n - 1) {
+            *str++ = ch;
+            i++;
+        }
+    }
+
+    *str = '\0';
+    return i;
 }
