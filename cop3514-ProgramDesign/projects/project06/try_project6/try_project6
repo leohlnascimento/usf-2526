@@ -1,0 +1,314 @@
+#!/bin/bash
+
+# AUTHOR: alessio gaspar (alessio@usf.edu) for COP3514 in fall 2025
+# Based on the autograder script provided by Jing Wang jw@usf.edu
+
+# ===============================================================================
+# Globals
+# ===============================================================================
+
+AUTOGRADER_PATH="./" # NOTE: do not forget the / at the end
+
+
+# ===============================================================================
+# Utility Functions: 
+# ===============================================================================
+
+do_cleanup() {
+	# making sure no output files are around
+	# should be useless at the beginning since gradescope starts us fresh
+	rm ${AUTOGRADER_PATH}*.chunk.txt 2> /dev/null
+}
+
+# ===============================================================================
+# main script starts here
+# ===============================================================================
+
+do_cleanup
+
+if [[ ! -f ./a.out ]]; then
+	# compilation failed (no ./a.out) so we skip testing altogether
+	compstatus="failed"
+else
+	# compilation successful (./a.out present) so we start testing
+	compstatus="passed"
+	
+	correct=0 			# number of tests passed
+	total=0	 			# total number of tests executed
+	tests_results=() 	# array to keep track of which tests passed/failed
+						# this array is indexed by $total
+	
+	# -----------------------------------------------------
+	# Testing some of the error conditions (exit status)
+	# -----------------------------------------------------
+	
+	# array of arguments to be passed, during each test, to a.out
+	tests_arguments=(
+		"" 											# wrong number of arguments
+		"notenoughargs" 							# wrong number of arguments
+		"one too manyargs" 							# wrong number of arguments
+		"./tests/tolkien_without_newline.txt five" 	# 2nd arg is not an int	
+		"./tolkien_without_newline.txt 0" 			# 2nd arg must be > 0
+		"./tests/doesnotexists.txt 5"				# input file does not exist 
+		)
+	# array of expected exit codes for each of the above tests
+	expected_exit_codes=(1 1 1 2 2 3) 
+	
+	# array to keep track of the exist status that our executable
+	# actually return on the above tests
+	observed_exit_codes=()
+	
+	# NOTE: all three arrays above need to have the same size
+	
+	nb_tests=${#tests_arguments[@]} # we use one of them to get the number of tests to be run
+
+	for test_index in $(seq 0 $((nb_tests-1))); do
+		
+		test_number=$((test_index+1))
+		# $total and $test_index are used to index the arrays 
+		# but $test_number is just for display purposes (starts from 1)
+
+		# run the test:
+		std_dump_file=${AUTOGRADER_PATH}results/${test_number}.log
+		./a.out ${tests_arguments[test_index]} > ${std_dump_file} 2> ${std_dump_file}
+		exit_code=$?
+
+		#recording the status code returned by the executable for this test
+		observed_exit_codes[test_index]+=$exit_code
+		
+		if [[ $exit_code -eq ${expected_exit_codes[test_index]} && $(diff -w ${AUTOGRADER_PATH}results/${test_number}.log ${AUTOGRADER_PATH}tests/error_tests/${test_number}.out) == "" ]]; then
+			# to pass the test we need: 
+			# 	1 - get the same exit codes
+			#   2 - produce the same output on both stdout and stderr
+			correct=$((correct+1))
+			tests_results+=("passed")
+			test_result="passed" # just this test, used below for display
+		else
+			# otherwise, we failed the test:
+			tests_results+=("failed")
+			test_result="failed" # just this test, used below for display
+		fi
+		
+		echo
+		echo -e "\n\nCASE #$((total+1)): ${test_result}"
+		echo "==="
+		echo "Arguments passed to a.out: ${tests_arguments[test_index]}"
+		echo "==="
+		echo "Observed exit code: ${observed_exit_codes[test_index]}"
+		echo "==="
+		echo "Expected exit code: ${expected_exit_codes[test_index]}"
+		echo "==="
+		echo "Observed output:"
+		tmp_observed_output_file=${AUTOGRADER_PATH}results/${test_number}.log
+		cat -n $tmp_observed_output_file
+		echo "==="
+		echo "Expected output:"
+		tmp_expected_output_file=${AUTOGRADER_PATH}tests/error_tests/${test_number}.out
+		cat -n ${tmp_expected_output_file}
+		echo "==="
+		
+		difference=$(diff -w ${tmp_observed_output_file} ${tmp_expected_output_file})
+		if [[ $difference == "" ]]
+		then
+			echo "No Differences Observed between expected and observed outputs"
+		else
+			echo "Difference:"
+			echo $difference
+		fi
+		echo "==="
+
+		total=$((total+1))
+	done
+	
+
+	# -----------------------------------------------------
+	# Standalone Test: Testing for exit status 4 
+	# -----------------------------------------------------
+		
+	# In order to make it so that the program is unable to create an output file
+	# we are going to create a folder with that name:
+	mkdir -p "1.chunk.txt"
+	#set +e # should not be necessary
+
+	tmp_observed_std_dump_file="${AUTOGRADER_PATH}results/$((total+1)).log"
+	tmp_expected_std_dump_file="${AUTOGRADER_PATH}tests/error_tests/$((total+1)).out"
+	tmp_expected_exit_code="4"
+
+	# run the test:
+	./a.out ./tests/tolkien_with_newline.txt 4 > ${tmp_observed_std_dump_file} 2> ${tmp_observed_std_dump_file}
+	exit_code=$?
+	
+	#set -e # should not be necessary
+
+	difference=$(diff -w $tmp_observed_std_dump_file $tmp_expected_std_dump_file) 
+	if [[ $exit_code -eq $tmp_expected_exit_code && ($difference == "") ]]
+	then
+		# to pass the test we need: 
+		# 	1 - get the same exit codes
+		#   2 - produce the same output on both stdout and stderr
+		correct=$((correct+1))
+		tests_results+=("passed")
+		test_result="passed" # just this test, used below for display
+	else
+		# otherwise, we failed the test:
+		tests_results+=("failed")
+		test_result="failed" # just this test, used below for display
+	fi
+
+	echo
+	echo -e "\n\nCASE #$((total+1)): ${test_result}"
+	echo "==="
+	echo "Arguments passed to a.out: ./tests/tolkien_with_newline.txt 4"
+	echo "==="
+	echo "Observed exit code: ${exit_code}"
+	echo "==="
+	echo "Expected exit code: ${tmp_expected_exit_code}"
+	echo "==="
+	difference=$(diff -w ${tmp_observed_std_dump_file} ${tmp_expected_std_dump_file})
+	if [[ $difference != "" ]]
+	then 
+		echo "Observed output: ${tmp_observed_std_dump_file}"
+		cat -n ${tmp_observed_std_dump_file}
+		echo "==="
+		echo "Expected output: ${tmp_expected_std_dump_file}"
+		cat -n ${tmp_expected_std_dump_file}
+		echo "==="
+		echo "Difference:"
+		echo $difference
+	else
+		echo "No Differences Observed between expected and observed outputs"
+	fi
+	echo "==="
+
+	total=$((total+1))
+	rmdir 1.chunk.txt
+	do_cleanup
+
+	# -----------------------------------------------------
+	# Testing normal correct processing
+	# -----------------------------------------------------
+
+	# Details of the tests:
+	# We use several input files: one with 16 lines (no newline at the end) 
+	# and the other with 17 lines (newline at the end)
+	#
+	# For each of these input files we run tests with different size of chunks:
+	# 4 --> detect when we generate one too many fragment file (i.e., when number of lines per fragment is
+	# 		a multiple of the number of lines in the 16 lines input file)
+	# 5 --> just an arbitrary number that will result in an incomplete last chunk
+	# 9 --> gets us exactly two full chunks with the 18 lines input file
+	# 0 --> just to see how the program reacts to 0 lines per fragment (should generate no output files)
+	# empty input file --> should generate no output files at all
+
+	do_cleanup
+
+	# We are going to do our tests with an input file called tolkien.txt
+	# that will come in two versions:
+	# - one in the tests/ folder with 16 lines (17 lines no newline at the end)
+	# - one in the tests/ folder with 17 lines (16 text + newline at the end)
+	target_files_basenames=("tolkien_without_newline.txt" "tolkien_with_newline.txt")
+	
+	
+	for target_file in "${target_files_basenames[@]}"
+	do
+		# running the tests for this target file
+	
+		# any folder in ${AUTOGRADER_PATH}tests/Tests_for_${target_file}/ named functional_test_N 
+		# is a whole test for this series with N being the max number of lines
+		# per fragment.
+		# we change the max number of lines for each fragment:
+		# 5 	--> number of lines is smaller than input file's length
+		# 20 	--> number of lines greater than input file's length
+		# 4 	--> tolkien.txt is 16 lines so this will generate full fragments
+		
+		for folder in ${AUTOGRADER_PATH}tests/Tests_for_${target_file}/functional_test_*
+		do
+			# figuring out the number of lines to be passed as argument
+			# based on the name of the test folder
+			test_number_lines=${folder##*_}
+			test_arguments=()
+			test_arguments+=("./tests/$target_file $test_number_lines")	
+
+			std_dump_file=${AUTOGRADER_PATH}results/$((total+1)).log
+			./a.out ${test_arguments} > ${std_dump_file} 2> ${std_dump_file}
+			observed_exit_code=$?
+
+			# first, make sure that we generated the expected number of chunks
+
+			# display information on the tests:
+			echo
+			echo -e "\n\nCASE #$((total+1))"
+			echo "==="
+			echo "Arguments passed to a.out: ${test_arguments}"
+			echo "==="
+			echo "Observed exit code: ${observed_exit_code}"
+			echo "==="
+			echo "Expected exit code: 0"
+			echo "==="
+			echo "Fragments Files Produced:"
+			echo "==="
+			
+			expected_nb_chunks=$(ls $folder/*.chunk.txt 2>/dev/null | wc -l)
+			observed_nb_chunks=$(ls ${AUTOGRADER_PATH}*.chunk.txt 2>/dev/null | wc -l)
+
+			# display information on the test: 
+			echo "Expected number of chunks: $expected_nb_chunks"
+			echo "==="
+			echo "Observed number of chunks: $observed_nb_chunks"
+			echo "==="
+
+			if [[ $expected_nb_chunks -ne $observed_nb_chunks ]]; then
+				all_tests_passed="no"
+				echo "Expected vs Observed number of chunks confirms that Test Failed"
+				echo "==="
+			else
+				# second, we compare each of these chunks
+				all_tests_passed="yes"
+				for expected_output in $folder/*.chunk.txt
+				do	
+					observed_output="${AUTOGRADER_PATH}$(basename ${expected_output})"
+					difference=$(diff -w ${expected_output} ${observed_output})
+
+					if [[ $difference != "" ]]; then
+						echo -e "\n\t---"
+						echo -e "\tObserved Fragment File $(basename ${observed_output}):"
+						cat -n ${observed_output} 2> /dev/null
+						echo -e "\n\t---"
+						echo -e "\tExpected Fragment File $(basename ${expected_output}):"
+						cat -n ${expected_output} 2> /dev/null
+						echo -e "\n\t---"	
+						echo -e "\tDifferences:"
+						all_tests_passed="no"
+						echo $difference
+						echo -e "\t---"
+						break;
+					else
+						echo -e "\t Checking $(basename ${observed_output}): No Differences"
+						#echo -e "\tNo Differences Observed between Expected and Observed Fragment"
+					fi
+				done
+			fi
+			echo -e "==="
+
+			# making sure no output files are around for the next tests
+			do_cleanup
+			
+			if [[ "$all_tests_passed" == "yes" ]]; then
+				correct=$((correct+1))
+				tests_results+=("passed")
+			else
+				tests_results+=("failed")
+			fi
+			total=$((total+1))
+		done
+	done
+
+fi # did we find a file a.out?
+
+# compute score
+if [[ ${total} > 0 ]]; then
+	score=$(echo 80.0*${correct}/${total} |bc -l |cut -c 1-5)
+else
+	score=0.0
+fi
+
