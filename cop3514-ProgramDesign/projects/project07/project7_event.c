@@ -2,6 +2,11 @@
 Project 7
 Leonardo Henriques Lemos Nascimento
 U91479116
+
+This program reads an integer num from the user,
+processes the data in customers.csv,
+and writes to result.csv all customers
+whose number of purchases exceeds num.
 */
 
 #include <stdio.h>
