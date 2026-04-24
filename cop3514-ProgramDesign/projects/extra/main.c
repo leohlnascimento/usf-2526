@@ -29,6 +29,14 @@ int main(void) {
     // TODO declare an array named library_functions which elements
     //      are of type function_pointer_t and initialize it with the 
     //      functions defined in library.h
+    function_pointer_t library_functions[MAX_FUNCTIONS_IN_LIBRARY] = {
+        f_reverse,
+        f_uppercase,
+        f_lowercase,
+        f_togglecase,
+        f_shuffle,
+        f_same
+    };
     
 
     /*  
@@ -47,7 +55,14 @@ int main(void) {
     //      library_functions:  
     //      "Reverse String", "Uppercase String", "Lowercase String", "Toggle Case String", 
     //      "Shuffle String", "Keep String the Same"        
-    
+    const char* library_function_names[MAX_FUNCTIONS_IN_LIBRARY] = {
+        "Reverse String",
+        "Uppercase String",
+        "Lowercase String",
+        "Toggle Case String",
+        "Shuffle String",
+        "Keep String the Same"
+    };
 
     /*  
         Let's create the storage for the functions that we want to 
