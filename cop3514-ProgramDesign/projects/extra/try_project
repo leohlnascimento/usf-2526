@@ -1,0 +1,30 @@
+# Written by Jing Wang, adapted by Alessio Gaspar 
+# This is a Unix shell script that will be used to test the extra credit project
+# To use the script, copy it into the same directory as your source file
+# Set execute permission for the file by issuing the command:
+# chmod +x try_project
+# Compile your program, producing a.out as the executable
+# To run the script, type 
+# ./try_project
+# The user input from the script will not be shown on the screen.
+# Compare the results from your program with the expected results on the test cases.
+i=0
+for test_name in ./tests/*.in; do
+	i=$((i+1))
+	test_name=$(basename "$test_name")
+	test_name=${test_name%.*}
+	./a.out < "./tests/${test_name}.in" > ./${test_name}.out 
+	if [[ $(diff -w ./tests/${test_name}.out ./${test_name}.out) == "" ]]; then
+		echo '===================================================='
+		echo "Test case #$i *** Correct! ***"
+		echo '===================================================='
+	else
+		echo '===================================================='
+		echo "Test case #$i *** Correct! ***"
+		echo '===================================================='
+		echo 'Difference:'
+		diff -w ./tests/${test_name}.out ./${test_name}.out
+		echo '===================================================='
+	fi
+	echo
+done
